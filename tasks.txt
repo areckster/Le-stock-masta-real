@@ -1,0 +1,4 @@
+- [x] Implement full data collection using snscrape and Pushshift
+- [x] Add real sentiment model quantization
+- [x] Expand backtesting metrics
+- [ ] Dockerize application
