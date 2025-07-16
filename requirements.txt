@@ -1,0 +1,11 @@
+snscrape
+requests
+pyyaml
+yfinance
+transformers
+torch
+backtrader
+technical-analysis-library
+discord-webhook
+apscheduler
+streamlit

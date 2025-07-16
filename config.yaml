@@ -1,0 +1,16 @@
+tickers:
+  - AAPL
+  - MSFT
+keywords:
+  - "stock market"
+  - "tech stocks"
+thresholds:
+  rsi:
+    buy: 30
+    sell: 70
+  sentiment:
+    buy: 0.2
+    sell: -0.2
+schedule:
+  every: 30 minutes
+discord_webhook_url: "YOUR_DISCORD_WEBHOOK_URL"
