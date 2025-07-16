@@ -1,6 +1,9 @@
 # Local Stock Signal App
 
-This project provides a simple stock signal application with optional Streamlit UI. All dependencies must be installed locally as the runtime environment lacks internet access.
+This project provides a simple stock signal application with an optional
+Streamlit UI. Because the target environment does not have internet access, you
+must download all required Python packages and model weights beforehand and
+install them from local files.
 
 Key features:
 - Price data retrieval via `yfinance` with retry logic.
@@ -11,15 +14,28 @@ Key features:
 
 ## Installation
 
-```bash
-./setup.sh
-```
-
-The script expects Python 3.11 and installs packages from `requirements.txt` (requires internet access).
+1. **Install Python** – Python 3.11 was used for development, but the scripts
+   run with newer versions as well. Verify `python3 --version` to confirm.
+2. **Install packages** – Execute `./setup.sh` which installs everything listed
+   in `requirements.txt`. If your system cannot reach the internet, download the
+   wheels yourself and point `pip` to that directory.
+3. **Download a sentiment model** – The default configuration expects the
+   *Mistral‑7B‑Instruct* model. Fetch it from Hugging Face (or another source)
+   and place the files on disk. You can change the path in `sentiment.py` to use
+   any other transformer model.
 
 ## Configuration
 
-Edit `config.yaml` to specify tickers, social keywords, thresholds, schedule, and `discord_webhook_url`.
+Edit `config.yaml` to specify tickers, social keywords, thresholds, schedule and
+`discord_webhook_url`. The template includes comments describing each setting to
+make configuration straightforward.
+
+### Switching sentiment models
+
+`sentiment.py` loads a transformer model from the local filesystem. To use a
+different model, update the `model_name` path in that file to point to your
+downloaded weights. Any sequence classification model from Hugging Face should
+work as long as the tokenizer and model files are available offline.
 
 ## Usage
 
