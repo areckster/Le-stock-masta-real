@@ -3,6 +3,8 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 import time
+
+from signals import load_config
 import main
 
 
@@ -12,8 +14,15 @@ def run_job():
 
 
 def start():
+    config = load_config()
+    interval = config.get("schedule", {}).get("every", "30 minutes")
+    try:
+        minutes = int(str(interval).split()[0])
+    except (ValueError, IndexError):
+        minutes = 30
+
     scheduler = BackgroundScheduler()
-    scheduler.add_job(run_job, "interval", minutes=30)
+    scheduler.add_job(run_job, "interval", minutes=minutes)
     scheduler.start()
     try:
         while True:

@@ -12,5 +12,5 @@ thresholds:
     buy: 0.2
     sell: -0.2
 schedule:
-  every: 30 minutes
+  every: 15 minutes
 discord_webhook_url: "YOUR_DISCORD_WEBHOOK_URL"
