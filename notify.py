@@ -12,7 +12,7 @@ def send_discord_notification(message: str):
 
     config = load_config()
     webhook_url = config.get("discord_webhook_url")
-    if not webhook_url:
+    if not webhook_url or "YOUR_DISCORD_WEBHOOK_URL" in webhook_url:
         print("Discord webhook URL not configured")
         return
     try:
