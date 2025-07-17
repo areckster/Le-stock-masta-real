@@ -29,7 +29,8 @@ class TestScrapeFallback(unittest.TestCase):
         cache_dir.mkdir(parents=True, exist_ok=True)
         (cache_dir / 'test.txt').write_text('cached tweet\n')
 
-        with patch('scrape.sntwitter.TwitterSearchScraper') as mock_scraper:
+        with patch('scrape.sntwitter.TwitterSearchScraper') as mock_scraper, \
+             patch('scrape.fetch_from_nitter', side_effect=Exception('fail')):
             mock_scraper.return_value.get_items.side_effect = Exception('fail')
             tweets = scrape.get_tweets(['test'], retries=1)
         self.assertEqual(tweets, ['cached tweet'])
