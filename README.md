@@ -14,15 +14,40 @@ Key features:
 
 ## Installation
 
-1. **Install Python** – Python 3.11 was used for development, but the scripts
-   run with newer versions as well. Verify `python3 --version` to confirm.
+1. **Install Python** – Python 3.11 was used for development. Verify
+   `python3 --version` to confirm that the correct interpreter is available. The
+   recommended approach is to manage Python with **pyenv** as described below.
 2. **Install packages** – Execute `./setup.sh` which installs everything listed
    in `requirements.txt`. If your system cannot reach the internet, download the
-   wheels yourself and point `pip` to that directory.
+   wheels yourself and point `pip` to that directory. `setup.sh` expects a
+   `python3.11` executable, so ensure pyenv (or your system) provides it.
+
 3. **Download a sentiment model** – The default configuration expects the
    *Mistral‑7B‑Instruct* model. Fetch it from Hugging Face (or another source)
    and place the files on disk. You can change the path in `sentiment.py` to use
    any other transformer model.
+
+### Using pyenv
+
+`setup.sh` installs dependencies with `python3.11`. If your system does not
+provide this interpreter, install [pyenv](https://github.com/pyenv/pyenv) and
+`pyenv-virtualenv`.
+
+```bash
+# install Python 3.11 and create a virtual environment
+pyenv install 3.11.0
+pyenv virtualenv 3.11.0 stock-signal
+
+# set the local version for this project
+pyenv local stock-signal
+
+# activate for the current shell (if not done automatically)
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+```
+
+After activating the environment, run `./setup.sh` to install the required
+packages.
 
 ## Configuration
 
