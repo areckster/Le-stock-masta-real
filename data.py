@@ -39,6 +39,7 @@ def fetch_price(
                 period=period,
                 interval=interval,
                 progress=False,
+                auto_adjust=False,
             )
             if not df.empty:
                 return df

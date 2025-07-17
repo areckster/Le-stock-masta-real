@@ -22,7 +22,7 @@ def compute_rsi(df: pd.DataFrame, period: int = 14) -> float:
     if df.empty:
         return 0.0
     rsi_series = ta.rsi(df["Close"], period=period)
-    return float(rsi_series.iloc[-1])
+    return float(rsi_series.iloc[-1].item())
 
 
 def compute_sma(df: pd.DataFrame, period: int) -> float:
@@ -43,7 +43,7 @@ def compute_sma(df: pd.DataFrame, period: int) -> float:
     if df.empty:
         return 0.0
     sma = ta.sma(df["Close"], period=period)
-    return float(sma.iloc[-1])
+    return float(sma.iloc[-1].item())
 
 
 def compute_macd(df: pd.DataFrame) -> float:
@@ -64,4 +64,4 @@ def compute_macd(df: pd.DataFrame) -> float:
 
     # ``ta.macd`` returns a Series containing the MACD histogram values.
     macd_series = ta.macd(df["Close"])
-    return float(macd_series.iloc[-1])
+    return float(macd_series.iloc[-1].item())

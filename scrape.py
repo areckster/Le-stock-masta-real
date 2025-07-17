@@ -2,6 +2,7 @@
 
 from typing import List
 import re
+import time
 import requests
 import snscrape.modules.twitter as sntwitter
 
@@ -13,18 +14,34 @@ def clean_text(text: str) -> str:
     return text.strip().lower()
 
 
-def get_tweets(keywords: List[str], limit: int = 50) -> List[str]:
-    """Fetch recent tweets for given keywords using snscrape."""
+def get_tweets(
+    keywords: List[str],
+    limit: int = 50,
+    *,
+    retries: int = 3,
+    delay: float = 1.0,
+) -> List[str]:
+    """Fetch recent tweets for given keywords using snscrape with retries."""
+
     tweets: List[str] = []
     for kw in keywords:
-        try:
-            scraper = sntwitter.TwitterSearchScraper(kw)
-            for i, tweet in enumerate(scraper.get_items()):
-                tweets.append(tweet.content)
-                if i + 1 >= limit:
-                    break
-        except Exception as exc:
-            print(f"Error scraping tweets for '{kw}': {exc}")
+        attempt = 0
+        while attempt < retries:
+            try:
+                scraper = sntwitter.TwitterSearchScraper(kw)
+                for i, tweet in enumerate(scraper.get_items()):
+                    tweets.append(tweet.content)
+                    if i + 1 >= limit:
+                        break
+                break
+            except Exception as exc:
+                attempt += 1
+                if attempt >= retries:
+                    print(
+                        f"Failed to scrape tweets for '{kw}' after {retries} attempts: {exc}"
+                    )
+                else:
+                    time.sleep(delay * (2 ** attempt))
     return [clean_text(t) for t in tweets]
 
 
