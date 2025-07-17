@@ -10,3 +10,4 @@ discord-webhook
 apscheduler
 streamlit
 playwright
+twint
