@@ -8,7 +8,7 @@ def compute_rsi(df: pd.DataFrame, period: int = 14) -> float:
     """Compute RSI indicator."""
     if df.empty:
         return 0.0
-    rsi_series = ta.rsi(df["Close"], length=period)
+    rsi_series = ta.rsi(df["Close"], period=period)
     return rsi_series.iloc[-1]
 
 
@@ -16,7 +16,7 @@ def compute_sma(df: pd.DataFrame, period: int) -> float:
     """Compute Simple Moving Average."""
     if df.empty:
         return 0.0
-    sma = ta.sma(df["Close"], length=period)
+    sma = ta.sma(df["Close"], period=period)
     return sma.iloc[-1]
 
 
