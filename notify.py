@@ -1,5 +1,6 @@
 """Notification utilities."""
 
+import os
 from discord_webhook import DiscordWebhook
 
 
@@ -12,6 +13,10 @@ def send_discord_notification(message: str):
 
     config = load_config()
     webhook_url = config.get("discord_webhook_url")
+
+    if not webhook_url or "STOCK_SIGNAL_WEBHOOK" in webhook_url:
+        webhook_url = os.environ.get("STOCK_SIGNAL_WEBHOOK")
+
     if not webhook_url or "YOUR_DISCORD_WEBHOOK_URL" in webhook_url:
         print("Discord webhook URL not configured")
         return

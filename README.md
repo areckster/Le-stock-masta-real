@@ -117,3 +117,17 @@ Run unit tests with:
 ```bash
 python3 -m unittest
 ```
+
+### Discord webhook setup
+
+Set the `STOCK_SIGNAL_WEBHOOK` environment variable with your Discord webhook URL.
+`config.yaml` references this variable via the `discord_webhook_url` setting. Example:
+
+```bash
+export STOCK_SIGNAL_WEBHOOK="https://discord.com/api/webhooks/..."
+```
+
+### Offline tweet cache
+
+If Twitter scraping fails, cached tweets are loaded from
+`data/twitter_cache/<keyword>.txt`. Each file should contain one tweet per line.

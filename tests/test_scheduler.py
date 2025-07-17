@@ -6,11 +6,39 @@ from unittest.mock import patch
 _sns = types.ModuleType("snscrape")
 _sns_modules = types.ModuleType("snscrape.modules")
 _sns_twitter = types.ModuleType("snscrape.modules.twitter")
+_sns_twitter.TwitterSearchScraper = object
 _sns_modules.twitter = _sns_twitter
 _sns.modules = _sns_modules
 sys.modules["snscrape"] = _sns
 sys.modules["snscrape.modules"] = _sns_modules
 sys.modules["snscrape.modules.twitter"] = _sns_twitter
+
+dummy_aps = types.ModuleType("apscheduler")
+dummy_sched = types.ModuleType("apscheduler.schedulers")
+dummy_back = types.ModuleType("apscheduler.schedulers.background")
+dummy_back.BackgroundScheduler = object
+dummy_sched.background = dummy_back
+dummy_aps.schedulers = dummy_sched
+sys.modules["apscheduler"] = dummy_aps
+sys.modules["apscheduler.schedulers"] = dummy_sched
+sys.modules["apscheduler.schedulers.background"] = dummy_back
+
+# Stub yaml module required by signals.load_config
+dummy_yaml = types.ModuleType("yaml")
+dummy_yaml.safe_load = lambda *a, **k: {}
+sys.modules.setdefault("yaml", dummy_yaml)
+
+# Dummy requests module for scrape dependency
+sys.modules.setdefault("requests", types.ModuleType("requests"))
+
+# Dummy pandas and yfinance for data module
+pandas = types.ModuleType("pandas")
+pandas.DataFrame = object
+sys.modules.setdefault("pandas", pandas)
+
+yfinance = types.ModuleType("yfinance")
+yfinance.download = lambda *a, **k: types.SimpleNamespace(empty=False)
+sys.modules.setdefault("yfinance", yfinance)
 
 dummy_transformers = types.ModuleType("transformers")
 dummy_transformers.AutoModelForSequenceClassification = object

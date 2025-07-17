@@ -3,6 +3,7 @@
 from typing import List
 import re
 import time
+from pathlib import Path
 import requests
 import snscrape.modules.twitter as sntwitter
 
@@ -21,11 +22,17 @@ def get_tweets(
     retries: int = 3,
     delay: float = 1.0,
 ) -> List[str]:
-    """Fetch recent tweets for given keywords using snscrape with retries."""
+    """Fetch recent tweets for given keywords using snscrape with retries.
+
+    If scraping repeatedly fails, tweets are loaded from
+    ``data/twitter_cache/<keyword>.txt`` where each line represents one tweet.
+    """
 
     tweets: List[str] = []
+    cache_dir = Path("data/twitter_cache")
     for kw in keywords:
         attempt = 0
+        success = False
         while attempt < retries:
             try:
                 scraper = sntwitter.TwitterSearchScraper(kw)
@@ -33,6 +40,7 @@ def get_tweets(
                     tweets.append(tweet.content)
                     if i + 1 >= limit:
                         break
+                success = True
                 break
             except Exception as exc:
                 attempt += 1
@@ -42,6 +50,20 @@ def get_tweets(
                     )
                 else:
                     time.sleep(delay * (2 ** attempt))
+
+        if not success:
+            file_name = f"{kw.replace(' ', '_')}.txt"
+            cache_file = cache_dir / file_name
+            if cache_file.exists():
+                with cache_file.open("r", encoding="utf-8") as f:
+                    for i, line in enumerate(f):
+                        line = line.strip()
+                        if line:
+                            tweets.append(line)
+                        if i + 1 >= limit:
+                            break
+            else:
+                print(f"No cached tweets found for '{kw}' in {cache_file}")
     return [clean_text(t) for t in tweets]
 
 
