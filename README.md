@@ -131,6 +131,8 @@ export STOCK_SIGNAL_WEBHOOK="https://discord.com/api/webhooks/..."
 
 Both scrapers automatically store results so they can be reused when the network
 is unavailable. The Twitter helper first tries `snscrape` and then a Nitter
-instance if scraping fails. Tweets are cached under
+instance if scraping fails. If those methods fail and the optional
+`playwright` dependency is installed, a headless browser is launched to grab
+tweets directly from the live search page. Tweets are cached under
 `data/twitter_cache/<keyword>.txt` and Reddit posts under
 `data/reddit_cache/<keyword>.txt`. Each file contains one line per entry.

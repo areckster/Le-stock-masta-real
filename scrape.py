@@ -8,6 +8,62 @@ import requests
 import snscrape.modules.twitter as sntwitter
 
 
+def fetch_with_playwright(query: str, limit: int, *, headless: bool = True) -> List[str]:
+    """Fetch tweets with Playwright as a last resort.
+
+    Parameters
+    ----------
+    query:
+        Search query.
+    limit:
+        Maximum number of tweets to return.
+    headless:
+        Whether to run the browser in headless mode.
+
+    Returns
+    -------
+    List[str]
+        Raw tweet texts or an empty list on failure.
+    """
+
+    try:  # pragma: no cover - optional dependency
+        from playwright.sync_api import sync_playwright
+    except Exception as exc:  # pragma: no cover
+        print(f"playwright not available: {exc}")
+        return []
+
+    tweets: List[str] = []
+    url = f"https://twitter.com/search?q={query}&src=typed_query&f=live"
+
+    try:
+        with sync_playwright() as p:
+            browser = p.firefox.launch(headless=headless)
+            page = browser.new_page()
+            page.goto(url, timeout=60000)
+            last_height = 0
+            while len(tweets) < limit:
+                page.wait_for_selector("article", timeout=10000)
+                articles = page.query_selector_all("article")
+                for article in articles[len(tweets) :]:
+                    text = article.inner_text()
+                    if text:
+                        tweets.append(text)
+                        if len(tweets) >= limit:
+                            break
+                page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                page.wait_for_timeout(1000)
+                height = page.evaluate("document.body.scrollHeight")
+                if height == last_height:
+                    break
+                last_height = height
+            browser.close()
+    except Exception as exc:  # pragma: no cover - network/browser errors
+        print(f"fetch_with_playwright failed for '{query}': {exc}")
+        return []
+
+    return tweets[:limit]
+
+
 def clean_text(text: str) -> str:
     """Simple text cleaner for sentiment analysis."""
     text = re.sub(r"https?://\S+", "", text)
@@ -84,6 +140,15 @@ def get_tweets(
                 collected = fetch_from_nitter(kw, limit)
             except Exception as exc:  # pragma: no cover
                 print(f"fetch_from_nitter failed for '{kw}': {exc}")
+                collected = []
+            if collected:
+                success = True
+
+        if not success:
+            try:
+                collected = fetch_with_playwright(kw, limit)
+            except Exception as exc:  # pragma: no cover
+                print(f"fetch_with_playwright failed for '{kw}': {exc}")
                 collected = []
             if collected:
                 success = True
