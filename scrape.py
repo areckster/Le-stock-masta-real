@@ -74,10 +74,24 @@ def clean_text(text: str) -> str:
 
 
 def fetch_from_nitter(query: str, limit: int, instance: str = "https://nitter.net") -> List[str]:
-    """Fetch tweets from a Nitter instance as a JSON fallback."""
-    url = f"{instance}/search?f=tweets&q={query}&format=json"
+    """Fetch tweets from a Nitter instance as a JSON fallback.
+
+    Parameters
+    ----------
+    query:
+        Search string.
+    limit:
+        Maximum number of tweets to return.
+    instance:
+        Base Nitter instance URL.
+    """
+
     try:
-        resp = requests.get(url, timeout=10)
+        resp = requests.get(
+            f"{instance}/search",
+            params={"f": "tweets", "q": query, "format": "json"},
+            timeout=10,
+        )
         if resp.status_code != 200:
             return []
         try:
