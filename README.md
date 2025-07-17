@@ -127,7 +127,9 @@ Set the `STOCK_SIGNAL_WEBHOOK` environment variable with your Discord webhook UR
 export STOCK_SIGNAL_WEBHOOK="https://discord.com/api/webhooks/..."
 ```
 
-### Offline tweet cache
+### Offline social media cache
 
-If Twitter scraping fails, cached tweets are loaded from
-`data/twitter_cache/<keyword>.txt`. Each file should contain one tweet per line.
+Both scrapers automatically store results so they can be reused when the network
+is unavailable. Tweets are cached under `data/twitter_cache/<keyword>.txt` and
+Reddit posts under `data/reddit_cache/<keyword>.txt`. Each file contains one line
+per entry.
