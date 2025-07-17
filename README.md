@@ -50,6 +50,13 @@ different model, update the `model_name` path in that file to point to your
 downloaded weights. Any sequence classification model from Hugging Face should
 work as long as the tokenizer and model files are available offline.
 
+### Adjusting the schedule
+
+The interval for the background scheduler is defined in `config.yaml` under the
+`schedule.every` key.  Specify a value like `"15 minutes"` or simply `15` to
+run `main.py` at your desired frequency.  `run_scheduler.py` reads this setting
+each time it starts.
+
 ## Usage
 
 Run the main process manually:
