@@ -42,6 +42,7 @@ class SignalStrategy(bt.Strategy):
 
 def backtest_strategy(ticker: str):
     """Run backtest and return performance metrics."""
+    print(f"Running backtest for {ticker}")
     config = load_config()
     df = fetch_price(ticker, period="1y", interval="1d")
     sentiment_score = compute_sentiment(
@@ -61,7 +62,7 @@ def backtest_strategy(ticker: str):
     sharpe = result.analyzers.sharpe.get_analysis().get("sharperatio", 0.0)
     dd = result.analyzers.drawdown.get_analysis().get("max", 0.0)
     final_value = cerebro.broker.getvalue()
-    print(f"Final portfolio value: {final_value}")
+    print(f"Final portfolio value for {ticker}: {final_value}")
     return {
         "sharpe": sharpe,
         "drawdown": dd,

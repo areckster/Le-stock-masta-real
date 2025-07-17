@@ -30,17 +30,20 @@ def _parse_minutes(interval: Any) -> int:
 
 
 def start():
+    print("Starting scheduler")
     config = load_config()
     interval = config.get("schedule", {}).get("every", "30 minutes")
     minutes = _parse_minutes(interval)
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(run_job, "interval", minutes=minutes)
+    print(f"Scheduler set to run every {minutes} minutes")
     scheduler.start()
     try:
         while True:
             time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
+        print("Scheduler shutting down")
         scheduler.shutdown()
 
 

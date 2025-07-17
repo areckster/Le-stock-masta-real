@@ -15,6 +15,7 @@ def _load_pipeline():
     """Load the quantized Mistral 7B INT4 model."""
     global _pipeline
     if _pipeline is None:
+        print("Loading sentiment model")
         model_name = "mistralai/Mistral-7B-Instruct-v0.2"
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForSequenceClassification.from_pretrained(model_name)
@@ -38,4 +39,6 @@ def compute_sentiment(texts: List[str]) -> float:
         label = res["label"].lower()
         score = res["score"] if label == "positive" else -res["score"]
         scores.append(score)
-    return float(sum(scores) / len(scores))
+    avg = float(sum(scores) / len(scores))
+    print(f"Computed sentiment: {avg}")
+    return avg

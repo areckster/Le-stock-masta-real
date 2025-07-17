@@ -17,6 +17,7 @@ logging.basicConfig(
 
 
 def process_ticker(ticker: str):
+    print(f"Processing {ticker}")
     config = load_config()
     signal = generate_signal(ticker)
     message = f"{datetime.utcnow()} - {ticker}: {signal}"
@@ -26,9 +27,11 @@ def process_ticker(ticker: str):
 
 
 def main():
+    print("Starting main process")
     config = load_config()
     for ticker in config.get("tickers", []):
         process_ticker(ticker)
+    print("Main process complete")
 
 
 if __name__ == "__main__":

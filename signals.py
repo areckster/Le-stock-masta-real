@@ -23,10 +23,15 @@ def generate_signal(ticker: str) -> str:
     sma_short = compute_sma(df, 50)
     sma_long = compute_sma(df, 200)
     macd_val = compute_macd(df)
+    print(
+        f"Indicators for {ticker}: RSI={rsi}, SMA50={sma_short}, "
+        f"SMA200={sma_long}, MACD={macd_val}"
+    )
 
     tweets = get_tweets(config.get("keywords", []))
     reddit = get_reddit_posts(config.get("keywords", []))
     sentiment_score = compute_sentiment(tweets + reddit)
+    print(f"Sentiment score for {ticker}: {sentiment_score}")
 
     if (
         rsi < config["thresholds"]["rsi"]["buy"]
@@ -34,6 +39,7 @@ def generate_signal(ticker: str) -> str:
         and sma_short > sma_long
         and macd_val > 0
     ):
+        print(f"Signal for {ticker}: BUY")
         return "BUY"
     if (
         rsi > config["thresholds"]["rsi"]["sell"]
@@ -41,5 +47,7 @@ def generate_signal(ticker: str) -> str:
         and sma_short < sma_long
         and macd_val < 0
     ):
+        print(f"Signal for {ticker}: SELL")
         return "SELL"
+    print(f"Signal for {ticker}: HOLD")
     return "HOLD"

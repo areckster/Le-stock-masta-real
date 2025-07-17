@@ -17,14 +17,17 @@ def load_config():
 def main():
     st.title("Stock Signals")
     config = load_config()
+    print("Loaded configuration for Streamlit app")
     signals = {}
     for ticker in config.get("tickers", []):
+        print(f"Generating signal for {ticker}")
         signals[ticker] = generate_signal(ticker)
     st.write(signals)
 
     if st.button("Run Backtest"):
         results = {}
         for ticker in config.get("tickers", []):
+            print(f"Running backtest for {ticker}")
             results[ticker] = backtest_strategy(ticker)
         st.write(results)
 

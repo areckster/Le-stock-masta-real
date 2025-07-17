@@ -31,8 +31,10 @@ def fetch_price(
     pd.DataFrame
         Price dataframe provided by yfinance.
     """
+    print(f"Fetching price data for {ticker}")
     attempt = 0
     while attempt < retries:
+        print(f"Attempt {attempt + 1} for {ticker}")
         try:
             df = yf.download(
                 ticker,
@@ -42,9 +44,11 @@ def fetch_price(
                 auto_adjust=False,
             )
             if not df.empty:
+                print(f"Successfully fetched data for {ticker}")
                 return df
         except Exception as exc:
             print(f"Error fetching {ticker}: {exc}")
         attempt += 1
         time.sleep(delay * (2 ** attempt))
+    print(f"Returning empty DataFrame for {ticker}")
     return pd.DataFrame()
