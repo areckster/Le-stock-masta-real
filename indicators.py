@@ -21,8 +21,21 @@ def compute_sma(df: pd.DataFrame, period: int) -> float:
 
 
 def compute_macd(df: pd.DataFrame) -> float:
-    """Compute MACD and return last histogram value."""
+    """Compute MACD histogram and return the last value.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Price dataframe containing a ``Close`` column.
+
+    Returns
+    -------
+    float
+        The most recent MACD histogram value. ``0.0`` if ``df`` is empty.
+    """
     if df.empty:
         return 0.0
-    macd_df = ta.macd(df["Close"])
-    return macd_df["MACDh_12_26_9"].iloc[-1]
+
+    # ``ta.macd`` returns a Series containing the MACD histogram values.
+    macd_series = ta.macd(df["Close"])
+    return float(macd_series.iloc[-1])
