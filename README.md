@@ -7,7 +7,7 @@ install them from local files.
 
 Key features:
 - Price data retrieval via `yfinance` with retry logic.
-- Twitter and Reddit scraping using `snscrape` and Pushshift.
+- X (formerly Twitter) and Reddit scraping using `snscrape` and Pushshift.
 - Quantized Mistral model for sentiment analysis.
 - Technical indicators (RSI, SMA, MACD) via `technical_analysis`.
 - Signal generation and historical backtesting with `backtrader`.
@@ -130,9 +130,9 @@ export STOCK_SIGNAL_WEBHOOK="https://discord.com/api/webhooks/..."
 ### Offline social media cache
 
 Both scrapers automatically store results so they can be reused when the network
-is unavailable. The Twitter helper first tries `snscrape` and then a Nitter
+is unavailable. The X/Twitter helper first tries `snscrape` and then a Nitter
 instance if scraping fails. If those methods fail and the optional
 `playwright` dependency is installed, a headless browser is launched to grab
-tweets directly from the live search page. Tweets are cached under
+tweets directly from the live search page on `x.com`. Tweets are cached under
 `data/twitter_cache/<keyword>.txt` and Reddit posts under
 `data/reddit_cache/<keyword>.txt`. Each file contains one line per entry.
