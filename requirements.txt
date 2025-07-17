@@ -5,7 +5,7 @@ yfinance
 transformers
 torch
 backtrader
-technical-analysis-library
+technical-analysis
 discord-webhook
 apscheduler
 streamlit
