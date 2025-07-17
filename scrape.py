@@ -284,26 +284,35 @@ def get_tweets(
         csv_file = Path(f"{kw.replace(' ', '_')}_tweets.csv")
         attempt = 0
         success = False
+        print(f"Fetching tweets for '{kw}'")
         results: List[Dict[str, str]] = []
         while attempt < retries:
+            print(f"Playwright attempt {attempt + 1} for '{kw}'")
             results = fetch_with_playwright(kw, limit)
             if results:
+                print(f"Playwright succeeded for '{kw}'")
                 success = True
                 break
             attempt += 1
             time.sleep(delay * (2 ** attempt))
         if not success:
+            print(f"Falling back to Twint for '{kw}'")
             attempt = 0
             while attempt < retries:
+                print(f"Twint attempt {attempt + 1} for '{kw}'")
                 results = fetch_with_twint(kw, limit)
                 if results:
+                    print(f"Twint succeeded for '{kw}'")
                     success = True
                     break
                 attempt += 1
                 time.sleep(delay * (2 ** attempt))
         if not success:
+            print(f"Falling back to Nitter for '{kw}'")
             results = fetch_from_nitter(kw, limit)
             success = bool(results)
+            if success:
+                print(f"Nitter succeeded for '{kw}'")
 
         if success:
             append_unique_csv(
@@ -315,6 +324,7 @@ def get_tweets(
             texts.extend(clean_text(r["content"]) for r in results)
         else:
             logger.error("all twitter methods failed for '%s'", kw)
+            print(f"Failed to fetch tweets for '{kw}'")
     return texts
 
 
@@ -333,15 +343,19 @@ def get_reddit_posts(
         csv_file = Path(f"{kw.replace(' ', '_')}_reddit.csv")
         attempt = 0
         success = False
+        print(f"Fetching Reddit posts for '{kw}'")
         results: List[Dict[str, str]] = []
         while attempt < retries:
+            print(f"Pushshift attempt {attempt + 1} for '{kw}'")
             results = fetch_pushshift(kw, limit)
             if results:
+                print(f"Pushshift succeeded for '{kw}'")
                 success = True
                 break
             attempt += 1
             time.sleep(delay * (2 ** attempt))
         if not success:
+            print(f"Falling back to Reddit API for '{kw}'")
             results = fetch_reddit_api(
                 kw,
                 limit,
@@ -349,6 +363,8 @@ def get_reddit_posts(
                 client_secret=client_secret,
             )
             success = bool(results)
+            if success:
+                print(f"Reddit API succeeded for '{kw}'")
 
         if success:
             append_unique_csv(
@@ -360,5 +376,6 @@ def get_reddit_posts(
             texts.extend(clean_text(r["title"]) for r in results)
         else:
             logger.error("all reddit methods failed for '%s'", kw)
+            print(f"Failed to fetch Reddit posts for '{kw}'")
     return texts
 

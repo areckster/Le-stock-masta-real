@@ -11,6 +11,7 @@ def send_discord_notification(message: str):
     """
     from signals import load_config
 
+    print("Preparing to send Discord notification")
     config = load_config()
     webhook_url = config.get("discord_webhook_url")
 
@@ -21,6 +22,7 @@ def send_discord_notification(message: str):
         print("Discord webhook URL not configured")
         return
     try:
+        print("Sending Discord notification")
         webhook = DiscordWebhook(url=webhook_url, content=message)
         response = webhook.execute()
         if response.status_code != 200:
