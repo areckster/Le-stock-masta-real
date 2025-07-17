@@ -9,3 +9,4 @@ technical-analysis
 discord-webhook
 apscheduler
 streamlit
+playwright

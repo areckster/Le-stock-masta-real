@@ -37,6 +37,14 @@ class TestScrapeFallback(unittest.TestCase):
 
         shutil.rmtree('data')
 
+    def test_playwright_used_when_other_methods_fail(self):
+        with patch('scrape.sntwitter.TwitterSearchScraper') as mock_scraper, \
+             patch('scrape.fetch_from_nitter', return_value=[]), \
+             patch('scrape.fetch_with_playwright', return_value=['pwtweet']):
+            mock_scraper.return_value.get_items.side_effect = Exception('fail')
+            tweets = scrape.get_tweets(['test'], retries=1)
+        self.assertEqual(tweets, ['pwtweet'])
+
 
 if __name__ == '__main__':
     unittest.main()
