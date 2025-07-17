@@ -1,4 +1,4 @@
-"""Utilities for scraping Twitter and Reddit sentiment."""
+"""Utilities for scraping X (formerly Twitter) and Reddit sentiment."""
 
 from __future__ import annotations
 
@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
-# Twitter helpers
+# X/Twitter helpers
 # ---------------------------------------------------------------------------
 
 def fetch_with_playwright(query: str, limit: int, *, headless: bool = True) -> List[Dict[str, str]]:
-    """Scrape tweets using Playwright."""
+    """Scrape tweets from x.com using Playwright."""
     try:  # pragma: no cover - optional dependency
         from playwright.sync_api import sync_playwright
     except Exception as exc:  # pragma: no cover - import errors
@@ -26,7 +26,7 @@ def fetch_with_playwright(query: str, limit: int, *, headless: bool = True) -> L
         return []
 
     tweets: List[Dict[str, str]] = []
-    url = f"https://twitter.com/search?q={query}&src=typed_query&f=live"
+    url = f"https://x.com/search?q={query}&src=typed_query&f=live"
     try:  # pragma: no cover - network/browser errors
         with sync_playwright() as p:
             browser = p.firefox.launch(headless=headless)
@@ -74,7 +74,7 @@ def fetch_with_playwright(query: str, limit: int, *, headless: bool = True) -> L
 
 
 def fetch_with_twint(query: str, limit: int) -> List[Dict[str, str]]:
-    """Scrape tweets with Twint."""
+    """Scrape tweets from X using Twint."""
     try:  # pragma: no cover - optional dependency
         import pandas as pd
         import twint
