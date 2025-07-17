@@ -15,6 +15,28 @@ def clean_text(text: str) -> str:
     return text.strip().lower()
 
 
+def fetch_from_nitter(query: str, limit: int, instance: str = "https://nitter.net") -> List[str]:
+    """Fetch tweets from a Nitter instance as a JSON fallback."""
+    url = f"{instance}/search?f=tweets&q={query}&format=json"
+    try:
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json()
+            results: List[str] = []
+            items = data.get("results") or data.get("tweets") or data
+            for item in items:
+                if isinstance(item, dict):
+                    text = item.get("text") or item.get("tweet", {}).get("text")
+                    if text:
+                        results.append(text)
+                        if len(results) >= limit:
+                            break
+            return results
+    except Exception as exc:  # pragma: no cover - network errors
+        print(f"fetch_from_nitter failed for '{query}': {exc}")
+    return []
+
+
 def get_tweets(
     keywords: List[str],
     limit: int = 50,
@@ -22,10 +44,11 @@ def get_tweets(
     retries: int = 3,
     delay: float = 1.0,
 ) -> List[str]:
-    """Fetch recent tweets for given keywords using snscrape with retries.
+    """Fetch recent tweets for given keywords.
 
-    If scraping repeatedly fails, tweets are loaded from
-    ``data/twitter_cache/<keyword>.txt`` where each line represents one tweet.
+    The primary method uses ``snscrape`` with retry logic. If all attempts fail,
+    the function tries a Nitter instance via :func:`fetch_from_nitter`. When both
+    methods fail, tweets are loaded from ``data/twitter_cache/<keyword>.txt``.
     """
 
     tweets: List[str] = []
@@ -55,6 +78,15 @@ def get_tweets(
 
         file_name = f"{kw.replace(' ', '_')}.txt"
         cache_file = cache_dir / file_name
+
+        if not success:
+            try:
+                collected = fetch_from_nitter(kw, limit)
+            except Exception as exc:  # pragma: no cover
+                print(f"fetch_from_nitter failed for '{kw}': {exc}")
+                collected = []
+            if collected:
+                success = True
 
         if success:
             with cache_file.open("w", encoding="utf-8") as f:

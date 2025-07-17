@@ -130,6 +130,7 @@ export STOCK_SIGNAL_WEBHOOK="https://discord.com/api/webhooks/..."
 ### Offline social media cache
 
 Both scrapers automatically store results so they can be reused when the network
-is unavailable. Tweets are cached under `data/twitter_cache/<keyword>.txt` and
-Reddit posts under `data/reddit_cache/<keyword>.txt`. Each file contains one line
-per entry.
+is unavailable. The Twitter helper first tries `snscrape` and then a Nitter
+instance if scraping fails. Tweets are cached under
+`data/twitter_cache/<keyword>.txt` and Reddit posts under
+`data/reddit_cache/<keyword>.txt`. Each file contains one line per entry.
