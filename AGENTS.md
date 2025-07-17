@@ -35,3 +35,6 @@ All tests must pass.
 ## Programmatic Checks for OpenAI Codex
 
 This repository does not include lint or type-check scripts, but tests should be run as above. The development environment lacks internet access, so ensure dependencies are installed locally via `setup.sh`.
+
+## Further instructions
+This app is solely based on runing online, there is no need to allow the program to function without internet.
