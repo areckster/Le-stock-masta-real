@@ -45,6 +45,33 @@ class TestScrapeFallback(unittest.TestCase):
             tweets = scrape.get_tweets(['test'], retries=1)
         self.assertEqual(tweets, ['pwtweet'])
 
+    def test_nitter_invalid_json_returns_empty(self):
+        class DummyResp:
+            status_code = 200
+
+            def json(self):
+                raise ValueError('bad json')
+
+        with patch.object(scrape.requests, 'get', return_value=DummyResp(), create=True):
+            tweets = scrape.fetch_from_nitter('query', 5)
+        self.assertEqual(tweets, [])
+
+    def test_successful_scrape_cached(self):
+        shutil.rmtree('data', ignore_errors=True)
+
+        class DummyScraper:
+            def get_items(self):
+                yield types.SimpleNamespace(content='hello')
+
+        with patch('scrape.fetch_from_nitter', return_value=[]), \
+             patch('scrape.fetch_with_playwright', return_value=[]), \
+             patch('scrape.sntwitter.TwitterSearchScraper', return_value=DummyScraper()):
+            tweets = scrape.get_tweets(['hello'], retries=1)
+
+        cache_file = Path('data/twitter_cache/hello.txt')
+        self.assertTrue(cache_file.exists())
+        self.assertEqual(tweets, ['hello'])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -42,7 +42,9 @@ def fetch_with_playwright(query: str, limit: int, *, headless: bool = True) -> L
             page.goto(url, timeout=60000)
             last_height = 0
             while len(tweets) < limit:
-                page.wait_for_selector("article", timeout=10000)
+                # allow extra time for the page to load when network
+                # conditions are poor
+                page.wait_for_selector("article", timeout=30000)
                 articles = page.query_selector_all("article")
                 for article in articles[len(tweets) :]:
                     text = article.inner_text()
@@ -76,18 +78,24 @@ def fetch_from_nitter(query: str, limit: int, instance: str = "https://nitter.ne
     url = f"{instance}/search?f=tweets&q={query}&format=json"
     try:
         resp = requests.get(url, timeout=10)
-        if resp.status_code == 200:
+        if resp.status_code != 200:
+            return []
+        try:
             data = resp.json()
-            results: List[str] = []
-            items = data.get("results") or data.get("tweets") or data
-            for item in items:
-                if isinstance(item, dict):
-                    text = item.get("text") or item.get("tweet", {}).get("text")
-                    if text:
-                        results.append(text)
-                        if len(results) >= limit:
-                            break
-            return results
+        except Exception as exc:
+            print(f"fetch_from_nitter failed for '{query}' - invalid JSON: {exc}")
+            return []
+
+        results: List[str] = []
+        items = data.get("results") or data.get("tweets") or data
+        for item in items:
+            if isinstance(item, dict):
+                text = item.get("text") or item.get("tweet", {}).get("text")
+                if text:
+                    results.append(text)
+                    if len(results) >= limit:
+                        break
+        return results
     except Exception as exc:  # pragma: no cover - network errors
         print(f"fetch_from_nitter failed for '{query}': {exc}")
     return []
@@ -154,9 +162,12 @@ def get_tweets(
                 success = True
 
         if success:
-            with cache_file.open("w", encoding="utf-8") as f:
-                for line in collected:
-                    f.write(clean_text(line) + "\n")
+            try:
+                with cache_file.open("w", encoding="utf-8") as f:
+                    for line in collected:
+                        f.write(clean_text(line) + "\n")
+            except Exception as exc:  # pragma: no cover - disk errors
+                print(f"Failed to write cache for '{kw}' in {cache_file}: {exc}")
             tweets.extend(collected)
         else:
             if cache_file.exists():
