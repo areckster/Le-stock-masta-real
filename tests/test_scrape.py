@@ -1,76 +1,70 @@
-import os
-import shutil
 import unittest
+import shutil
 from pathlib import Path
 from unittest.mock import patch
 
 import types
 import sys
 
-# Provide dummy requests and snscrape modules so scrape imports cleanly
+# Dummy requests module so scrape imports cleanly
 sys.modules.setdefault('requests', types.ModuleType('requests'))
-
-_sns = types.ModuleType('snscrape')
-_sns_modules = types.ModuleType('snscrape.modules')
-_sns_twitter = types.ModuleType('snscrape.modules.twitter')
-_sns_twitter.TwitterSearchScraper = object
-_sns_modules.twitter = _sns_twitter
-_sns.modules = _sns_modules
-sys.modules['snscrape'] = _sns
-sys.modules['snscrape.modules'] = _sns_modules
-sys.modules['snscrape.modules.twitter'] = _sns_twitter
 
 import scrape
 
 
 class TestScrapeFallback(unittest.TestCase):
-    def test_loads_cache_on_failure(self):
-        cache_dir = Path('data/twitter_cache')
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        (cache_dir / 'test.txt').write_text('cached tweet\n')
+    def tearDown(self) -> None:
+        for pattern in ('*_tweets.csv', '*_reddit.csv'):
+            for p in Path('.').glob(pattern):
+                p.unlink()
+        shutil.rmtree('data', ignore_errors=True)
 
-        with patch('scrape.sntwitter.TwitterSearchScraper') as mock_scraper, \
-             patch('scrape.fetch_from_nitter', side_effect=Exception('fail')):
-            mock_scraper.return_value.get_items.side_effect = Exception('fail')
-            tweets = scrape.get_tweets(['test'], retries=1)
-        self.assertEqual(tweets, ['cached tweet'])
+    def test_twint_used_when_playwright_fails(self):
+        with patch('scrape.fetch_with_playwright', return_value=[]), \
+             patch('scrape.fetch_with_twint', return_value=[{
+                 'date': '2020',
+                 'tweet_id': '1',
+                 'content': 'twint tweet',
+                 'username': 'user'
+             }]), \
+             patch('scrape.fetch_from_nitter', return_value=[]):
+            tweets = scrape.get_tweets(['stock market'], retries=1, limit=1)
+        self.assertEqual(tweets, ['twint tweet'])
+        self.assertTrue(Path('stock_market_tweets.csv').exists())
 
-        shutil.rmtree('data')
-
-    def test_playwright_used_when_other_methods_fail(self):
-        with patch('scrape.sntwitter.TwitterSearchScraper') as mock_scraper, \
-             patch('scrape.fetch_from_nitter', return_value=[]), \
-             patch('scrape.fetch_with_playwright', return_value=['pwtweet']):
-            mock_scraper.return_value.get_items.side_effect = Exception('fail')
-            tweets = scrape.get_tweets(['test'], retries=1)
-        self.assertEqual(tweets, ['pwtweet'])
+    def test_nitter_used_when_others_fail(self):
+        with patch('scrape.fetch_with_playwright', return_value=[]), \
+             patch('scrape.fetch_with_twint', return_value=[]), \
+             patch('scrape.fetch_from_nitter', return_value=[{
+                 'date': '2020',
+                 'tweet_id': '2',
+                 'content': 'nitter tweet',
+                 'username': 'user'
+             }]):
+            tweets = scrape.get_tweets(['tech stocks'], retries=1, limit=1)
+        self.assertEqual(tweets, ['nitter tweet'])
+        self.assertTrue(Path('tech_stocks_tweets.csv').exists())
 
     def test_nitter_invalid_json_returns_empty(self):
         class DummyResp:
             status_code = 200
-
             def json(self):
                 raise ValueError('bad json')
-
         with patch.object(scrape.requests, 'get', return_value=DummyResp(), create=True):
             tweets = scrape.fetch_from_nitter('query', 5)
         self.assertEqual(tweets, [])
 
-    def test_successful_scrape_cached(self):
-        shutil.rmtree('data', ignore_errors=True)
-
-        class DummyScraper:
-            def get_items(self):
-                yield types.SimpleNamespace(content='hello')
-
-        with patch('scrape.fetch_from_nitter', return_value=[]), \
-             patch('scrape.fetch_with_playwright', return_value=[]), \
-             patch('scrape.sntwitter.TwitterSearchScraper', return_value=DummyScraper()):
-            tweets = scrape.get_tweets(['hello'], retries=1)
-
-        cache_file = Path('data/twitter_cache/hello.txt')
-        self.assertTrue(cache_file.exists())
-        self.assertEqual(tweets, ['hello'])
+    def test_reddit_api_used_when_pushshift_fails(self):
+        with patch('scrape.fetch_pushshift', return_value=[]), \
+             patch('scrape.fetch_reddit_api', return_value=[{
+                 'title': 'reddit post',
+                 'score': 1,
+                 'num_comments': 2,
+                 'url': 'https://example.com'
+             }]):
+            posts = scrape.get_reddit_posts(['stock market'], retries=1, limit=1)
+        self.assertEqual(posts, ['reddit post'])
+        self.assertTrue(Path('stock_market_reddit.csv').exists())
 
 
 if __name__ == '__main__':
