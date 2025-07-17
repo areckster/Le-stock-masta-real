@@ -13,4 +13,4 @@ thresholds:
     sell: -0.2
 schedule:
   every: 15 minutes
-discord_webhook_url: "YOUR_DISCORD_WEBHOOK_URL"
+discord_webhook_url: "${STOCK_SIGNAL_WEBHOOK}"

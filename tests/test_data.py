@@ -1,4 +1,19 @@
+import sys
+import types
 import unittest
+
+# Dummy dependencies so data.py imports cleanly
+pandas = types.ModuleType("pandas")
+pandas.DataFrame = lambda *a, **k: None
+pandas.read_csv = lambda *a, **k: None
+pandas.Series = lambda *a, **k: None
+pandas.concat = lambda *a, **k: None
+sys.modules.setdefault("pandas", pandas)
+
+yfinance = types.ModuleType("yfinance")
+yfinance.download = lambda *a, **k: types.SimpleNamespace(empty=False)
+sys.modules.setdefault("yfinance", yfinance)
+
 from data import fetch_price
 
 
