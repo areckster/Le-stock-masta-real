@@ -5,19 +5,45 @@ from technical_analysis import indicators as ta
 
 
 def compute_rsi(df: pd.DataFrame, period: int = 14) -> float:
-    """Compute RSI indicator."""
+    """Compute the Relative Strength Index.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Price dataframe containing a ``Close`` column.
+    period : int, optional
+        Number of periods used to compute the indicator. Defaults to ``14``.
+
+    Returns
+    -------
+    float
+        The most recent RSI value. ``0.0`` if ``df`` is empty.
+    """
     if df.empty:
         return 0.0
     rsi_series = ta.rsi(df["Close"], period=period)
-    return rsi_series.iloc[-1]
+    return float(rsi_series.iloc[-1])
 
 
 def compute_sma(df: pd.DataFrame, period: int) -> float:
-    """Compute Simple Moving Average."""
+    """Compute the Simple Moving Average.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Price dataframe containing a ``Close`` column.
+    period : int
+        Number of periods used for the average.
+
+    Returns
+    -------
+    float
+        The most recent SMA value. ``0.0`` if ``df`` is empty.
+    """
     if df.empty:
         return 0.0
     sma = ta.sma(df["Close"], period=period)
-    return sma.iloc[-1]
+    return float(sma.iloc[-1])
 
 
 def compute_macd(df: pd.DataFrame) -> float:
