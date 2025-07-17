@@ -2,6 +2,7 @@
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
+from typing import Any
 import time
 
 from signals import load_config
@@ -13,13 +14,25 @@ def run_job():
     main.main()
 
 
+def _parse_minutes(interval: Any) -> int:
+    """Return the number of minutes represented by ``interval``.
+
+    ``interval`` may be an int or a string like ``"15 minutes"``.  If the value
+    cannot be parsed, a default of 30 is returned.
+    """
+
+    if isinstance(interval, int):
+        return interval
+    try:
+        return int(str(interval).split()[0])
+    except (ValueError, IndexError):
+        return 30
+
+
 def start():
     config = load_config()
     interval = config.get("schedule", {}).get("every", "30 minutes")
-    try:
-        minutes = int(str(interval).split()[0])
-    except (ValueError, IndexError):
-        minutes = 30
+    minutes = _parse_minutes(interval)
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(run_job, "interval", minutes=minutes)
