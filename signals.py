@@ -3,7 +3,7 @@
 from typing import Dict
 import yaml
 from data import fetch_price
-from scrape import get_tweets, get_reddit_posts
+from scrape import get_tweets
 from sentiment import compute_sentiment
 from indicators import compute_rsi, compute_sma, compute_macd
 
@@ -29,8 +29,7 @@ def generate_signal(ticker: str) -> str:
     )
 
     tweets = get_tweets(config.get("keywords", []))
-    reddit = get_reddit_posts(config.get("keywords", []))
-    sentiment_score = compute_sentiment(tweets + reddit)
+    sentiment_score = compute_sentiment(tweets)
     print(f"Sentiment score for {ticker}: {sentiment_score}")
 
     if (

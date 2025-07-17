@@ -14,7 +14,7 @@ import scrape
 
 class TestScrapeFallback(unittest.TestCase):
     def tearDown(self) -> None:
-        for pattern in ('*_tweets.csv', '*_reddit.csv'):
+        for pattern in ('*_tweets.csv',):
             for p in Path('.').glob(pattern):
                 p.unlink()
         shutil.rmtree('data', ignore_errors=True)
@@ -53,19 +53,6 @@ class TestScrapeFallback(unittest.TestCase):
         with patch.object(scrape.requests, 'get', return_value=DummyResp(), create=True):
             tweets = scrape.fetch_from_nitter('query', 5)
         self.assertEqual(tweets, [])
-
-    def test_reddit_api_used_when_pushshift_fails(self):
-        with patch('scrape.fetch_pushshift', return_value=[]), \
-             patch('scrape.fetch_reddit_api', return_value=[{
-                 'title': 'reddit post',
-                 'score': 1,
-                 'num_comments': 2,
-                 'url': 'https://example.com'
-             }]):
-            posts = scrape.get_reddit_posts(['stock market'], retries=1, limit=1)
-        self.assertEqual(posts, ['reddit post'])
-        self.assertTrue(Path('stock_market_reddit.csv').exists())
-
 
 if __name__ == '__main__':
     unittest.main()
