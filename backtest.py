@@ -4,7 +4,7 @@ import backtrader as bt
 import pandas as pd
 import yaml
 from data import fetch_price
-from scrape import get_tweets, get_reddit_posts
+from scrape import get_tweets
 from sentiment import compute_sentiment
 
 CONFIG_PATH = "config.yaml"
@@ -47,7 +47,6 @@ def backtest_strategy(ticker: str):
     df = fetch_price(ticker, period="1y", interval="1d")
     sentiment_score = compute_sentiment(
         get_tweets(config.get("keywords", []))
-        + get_reddit_posts(config.get("keywords", []))
     )
 
     cerebro = bt.Cerebro()
