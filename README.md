@@ -30,6 +30,19 @@ Edit `config.yaml` to specify tickers, social keywords, thresholds, schedule and
 `discord_webhook_url`. The template includes comments describing each setting to
 make configuration straightforward.
 
+### Selecting tickers
+
+The `tickers` list in `config.yaml` determines which stocks are tracked.
+Add or remove symbols under this key to customize alerts. Example:
+
+```yaml
+tickers:
+  - AAPL
+  - MSFT
+  - GOOGL
+```
+
+
 ### Switching sentiment models
 
 `sentiment.py` loads a transformer model from the local filesystem. To use a
